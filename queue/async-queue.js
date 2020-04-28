@@ -1,11 +1,15 @@
+const defaultOptions = {
+  concurrency: 1
+};
+
 /**
- * It is necessary to set status 202 in response to avoid timeout issue, 
+ * It is necessary to set status 202 in response to avoid timeout issue,
  * so that client gets a Accepted response which will not keep the
  * client pending as request is processing
- * 
+ *
  * Reference: https://farazdagi.com/2014/rest-and-long-running-jobs/
  */
-const initiateJobQueue = function () {
+const initiateJobQueue = function (options = defaultOptions) {
   const async = require("async");
 
   const tasks = Array.from(Array(100), (x, index) => `Task ${index + 1}`);
@@ -21,7 +25,7 @@ const initiateJobQueue = function () {
 
   const asyncQueue = async.queue(function (task, callback) {
     handleTask(task, callback);
-  }, 5);
+  }, options.concurrency);
 
   tasks.forEach((task) => {
     asyncQueue.push(task, function (err) {
